@@ -19,15 +19,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <Navbar />
-          <main className=" mx-auto ">{children}</main>
-        </ThemeProvider>
+      <Navbar />
+      <main className=" mx-auto ">{children}</main>
       </body>
     </html>
   );

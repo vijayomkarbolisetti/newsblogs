@@ -4,6 +4,11 @@ interface PostPageProps {
   params: { slug: string };
 }
 
+export async function generateStaticParams() {
+  const slugs = await client.fetch(`*[_type == "post"]{ "slug": slug.current }`);
+  return slugs.map((post: { slug: string }) => ({ slug: post.slug }));
+}
+
 async function getPost(slug: string) {
   try {
     return await client.fetch(
@@ -25,11 +30,7 @@ export default async function PostPage({ params }: PostPageProps) {
   const post = await getPost(params.slug);
 
   if (!post) {
-    return (
-      <div>
-        <h1>Post Not Found</h1>
-      </div>
-    );
+    return <h1>Post Not Found</h1>;
   }
 
   return (
