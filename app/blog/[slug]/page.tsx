@@ -2,7 +2,7 @@ import { client } from "@/app/lib/sanity";
 
 async function getPost(slug: string) {
   try {
-    const post = await client.fetch(
+    return await client.fetch(
       `*[_type == "post" && slug.current == $slug][0]{
         title,
         publishedAt,
@@ -11,14 +11,13 @@ async function getPost(slug: string) {
       }`,
       { slug }
     );
-
-    return post;
   } catch (error) {
     console.error("Sanity Fetch Error:", error);
     return null;
   }
 }
 
+// ✅ Fetch data before rendering (No async inside JSX)
 export default async function PostPage({ params }: { params: { slug: string } }) {
   const post = await getPost(params.slug);
 
@@ -32,8 +31,8 @@ export default async function PostPage({ params }: { params: { slug: string } })
       )}
       <p>Published on: {new Date(post.publishedAt).toDateString()}</p>
       <div>
-        {post.body.map((block: any, index: number) => (
-          <p key={index}>{block.children[0].text}</p>
+        {post.body?.map((block: any, index: number) => (
+          <p key={index}>{block?.children?.[0]?.text}</p>
         ))}
       </div>
     </div>
