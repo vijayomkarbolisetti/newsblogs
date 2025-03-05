@@ -1,5 +1,9 @@
 import { client } from "@/app/lib/sanity";
 
+interface PageProps {
+  params: { slug: string };
+}
+
 async function getPost(slug: string) {
   try {
     return await client.fetch(
@@ -17,8 +21,8 @@ async function getPost(slug: string) {
   }
 }
 
-// ✅ Fetch data before rendering (No async inside JSX)
-export default async function PostPage({ params }: { params: { slug: string } }) {
+// ✅ Corrected `params` type
+export default async function PostPage({ params }: PageProps) {
   const post = await getPost(params.slug);
 
   if (!post) return <div><h1>Post Not Found</h1></div>;
@@ -29,7 +33,8 @@ export default async function PostPage({ params }: { params: { slug: string } })
       {post.mainImage?.asset?.url && (
         <img src={post.mainImage.asset.url} alt={post.title} width="800" />
       )}
-      <p>Published on: {new Date(post.publishedAt).toDateString()}</p>
+  <p>Published on: {new Date(post.publishedAt).toISOString().split("T")[0]}</p>
+
       <div>
         {post.body?.map((block: any, index: number) => (
           <p key={index}>{block?.children?.[0]?.text}</p>
