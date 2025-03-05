@@ -1,6 +1,6 @@
 import { client } from "@/app/lib/sanity";
 
-interface PageProps {
+interface PostPageProps {
   params: { slug: string };
 }
 
@@ -21,11 +21,16 @@ async function getPost(slug: string) {
   }
 }
 
-// ✅ Corrected `params` type
-export default async function PostPage({ params }: PageProps) {
+export default async function PostPage({ params }: PostPageProps) {
   const post = await getPost(params.slug);
 
-  if (!post) return <div><h1>Post Not Found</h1></div>;
+  if (!post) {
+    return (
+      <div>
+        <h1>Post Not Found</h1>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -33,8 +38,7 @@ export default async function PostPage({ params }: PageProps) {
       {post.mainImage?.asset?.url && (
         <img src={post.mainImage.asset.url} alt={post.title} width="800" />
       )}
-  <p>Published on: {new Date(post.publishedAt).toISOString().split("T")[0]}</p>
-
+      <p>Published on: {new Date(post.publishedAt).toISOString().split("T")[0]}</p>
       <div>
         {post.body?.map((block: any, index: number) => (
           <p key={index}>{block?.children?.[0]?.text}</p>

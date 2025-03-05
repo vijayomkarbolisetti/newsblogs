@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ModeToggle } from "./ModeToggle";
+
 
 export default function Navbar() {
   return (
@@ -8,7 +8,7 @@ export default function Navbar() {
         {/* Marshal<span className="text-primary">Blog</span> */}
       </Link>
 
-      {/* <ModeToggle /> */}
+
     </nav>
   );
 }
