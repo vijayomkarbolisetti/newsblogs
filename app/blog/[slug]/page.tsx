@@ -1,31 +1,7 @@
 import { client } from "@/app/lib/sanity";
 
-// ✅ Ensure correct type
-interface PageProps {
-  params: { slug: string };
-}
-
-// ✅ Fetch static params for pre-rendering
-export async function generateStaticParams() {
-  const slugs = await client.fetch(`*[_type == "post"]{ "slug": slug.current }`);
-  return slugs.map((post: { slug: string }) => ({ slug: post.slug }));
-}
-
-// ✅ Fetch post data
-async function getPost(slug: string) {
-  return client.fetch(
-    `*[_type == "post" && slug.current == $slug][0]{
-      title,
-      publishedAt,
-      mainImage{ asset->{url} },
-      body
-    }`,
-    { slug }
-  );
-}
-
-// ✅ Server Component for Blog Post Page
-export default async function PostPage({ params }: PageProps) {
+// ✅ Use Next.js inferred type for params
+export default async function PostPage({ params }: { params: Record<string, string> }) {
   const post = await getPost(params.slug);
 
   if (!post) {
@@ -46,4 +22,23 @@ export default async function PostPage({ params }: PageProps) {
       </div>
     </div>
   );
+}
+
+// ✅ Ensure params type is `{ slug: string }`
+async function getPost(slug: string) {
+  return client.fetch(
+    `*[_type == "post" && slug.current == $slug][0]{
+      title,
+      publishedAt,
+      mainImage{ asset->{url} },
+      body
+    }`,
+    { slug }
+  );
+}
+
+// ✅ Generate static paths
+export async function generateStaticParams() {
+  const slugs = await client.fetch(`*[_type == "post"]{ "slug": slug.current }`);
+  return slugs.map((post: { slug: string }) => ({ slug: post.slug }));
 }
