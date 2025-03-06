@@ -1,9 +1,5 @@
 import { client } from "@/app/lib/sanity";
-
-// Allow params to be a plain object or a promise that resolves to the object.
-interface PostPageProps {
-  params: { slug: string } | Promise<{ slug: string }>;
-}
+import { Suspense } from "react";
 
 export async function generateStaticParams() {
   const slugs = await client.fetch(`*[_type == "post"]{ "slug": slug.current }`);
@@ -11,26 +7,28 @@ export async function generateStaticParams() {
 }
 
 async function getPost(slug: string) {
-  try {
-    return await client.fetch(
-      `*[_type == "post" && slug.current == $slug][0]{
-        title,
-        publishedAt,
-        mainImage{ asset->{url} },
-        body
-      }`,
-      { slug }
-    );
-  } catch (error) {
-    console.error("Sanity Fetch Error:", error);
-    return null;
-  }
+  return client.fetch(
+    `*[_type == "post" && slug.current == $slug][0]{
+      title,
+      publishedAt,
+      mainImage{ asset->{url} },
+      body
+    }`,
+    { slug }
+  );
 }
 
-export default async function PostPage({ params }: PostPageProps) {
-  // Await params in case it's a promise.
-  const { slug } = await params;
-  const post = await getPost(slug);
+export default function PostPage({ params }: { params: { slug: string } }) {
+  return (
+    <Suspense fallback={<p>Loading...</p>}>
+      <PostContent params={params} />
+    </Suspense>
+  );
+}
+
+// Extract Post Fetching to Separate Component
+async function PostContent({ params }: { params: { slug: string } }) {
+  const post = await getPost(params.slug);
 
   if (!post) {
     return <h1>Post Not Found</h1>;
