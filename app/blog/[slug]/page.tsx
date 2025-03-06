@@ -1,7 +1,8 @@
 import { client } from "@/app/lib/sanity";
 
+// Allow params to be a plain object or a promise that resolves to the object.
 interface PostPageProps {
-  params: { slug: string };
+  params: { slug: string } | Promise<{ slug: string }>;
 }
 
 export async function generateStaticParams() {
@@ -27,7 +28,9 @@ async function getPost(slug: string) {
 }
 
 export default async function PostPage({ params }: PostPageProps) {
-  const post = await getPost(params.slug);
+  // Await params in case it's a promise.
+  const { slug } = await params;
+  const post = await getPost(slug);
 
   if (!post) {
     return <h1>Post Not Found</h1>;
