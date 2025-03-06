@@ -1,11 +1,17 @@
 import { client } from "@/app/lib/sanity";
-import { Suspense } from "react";
 
+// ✅ Ensure correct type
+interface PageProps {
+  params: { slug: string };
+}
+
+// ✅ Fetch static params for pre-rendering
 export async function generateStaticParams() {
   const slugs = await client.fetch(`*[_type == "post"]{ "slug": slug.current }`);
   return slugs.map((post: { slug: string }) => ({ slug: post.slug }));
 }
 
+// ✅ Fetch post data
 async function getPost(slug: string) {
   return client.fetch(
     `*[_type == "post" && slug.current == $slug][0]{
@@ -18,16 +24,8 @@ async function getPost(slug: string) {
   );
 }
 
-export default function PostPage({ params }: { params: { slug: string } }) {
-  return (
-    <Suspense fallback={<p>Loading...</p>}>
-      <PostContent params={params} />
-    </Suspense>
-  );
-}
-
-// Extract Post Fetching to Separate Component
-async function PostContent({ params }: { params: { slug: string } }) {
+// ✅ Server Component for Blog Post Page
+export default async function PostPage({ params }: PageProps) {
   const post = await getPost(params.slug);
 
   if (!post) {
